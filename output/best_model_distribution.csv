@@ -1,0 +1,6 @@
+best_model,count
+Prophet_tuned,51
+Prophet_plain,15
+AutoARIMA,4
+CES,3
+AutoETS,2

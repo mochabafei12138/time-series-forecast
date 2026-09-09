@@ -1,0 +1,76 @@
+unique_id,best_model,test_smape,test_n
+Argentina_Kagglazon_Using LLMs to Improve Your Coding,Prophet_tuned,24.284852249060645,365
+Argentina_Kagglazon_Using LLMs to Train More LLMs,Prophet_tuned,19.36963967599321,365
+Argentina_Kagglazon_Using LLMs to Win Friends and Influence People,CES,32.46400074262971,365
+Argentina_Kagglazon_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,5.620817591256352,365
+Argentina_Kagglazon_Using LLMs to Write Better,AutoARIMA,20.64962469856105,365
+Argentina_Kaggle Learn_Using LLMs to Improve Your Coding,Prophet_tuned,24.196101392459713,365
+Argentina_Kaggle Learn_Using LLMs to Train More LLMs,Prophet_tuned,19.276317042722173,365
+Argentina_Kaggle Learn_Using LLMs to Win Friends and Influence People,Prophet_tuned,19.560856394448738,365
+Argentina_Kaggle Learn_Using LLMs to Win More Kaggle Competitions,AutoARIMA,25.565239933144763,365
+Argentina_Kaggle Learn_Using LLMs to Write Better,CES,29.544623771216195,365
+Argentina_Kaggle Store_Using LLMs to Improve Your Coding,AutoARIMA,25.5100327064603,365
+Argentina_Kaggle Store_Using LLMs to Train More LLMs,Prophet_tuned,19.92054683157515,365
+Argentina_Kaggle Store_Using LLMs to Win Friends and Influence People,AutoARIMA,24.406618048272826,365
+Argentina_Kaggle Store_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,5.6699672877683085,365
+Argentina_Kaggle Store_Using LLMs to Write Better,CES,30.664525599143044,365
+Canada_Kagglazon_Using LLMs to Improve Your Coding,Prophet_tuned,6.09500670872011,365
+Canada_Kagglazon_Using LLMs to Train More LLMs,Prophet_plain,5.2272584678679195,365
+Canada_Kagglazon_Using LLMs to Win Friends and Influence People,Prophet_plain,5.23648306149852,365
+Canada_Kagglazon_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,6.156354481942272,365
+Canada_Kagglazon_Using LLMs to Write Better,Prophet_tuned,6.973373914807533,365
+Canada_Kaggle Learn_Using LLMs to Improve Your Coding,Prophet_tuned,6.3526387550128165,365
+Canada_Kaggle Learn_Using LLMs to Train More LLMs,Prophet_tuned,5.086585631365505,365
+Canada_Kaggle Learn_Using LLMs to Win Friends and Influence People,Prophet_tuned,5.235794611175859,365
+Canada_Kaggle Learn_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,6.746005998583709,365
+Canada_Kaggle Learn_Using LLMs to Write Better,Prophet_tuned,6.577239969354974,365
+Canada_Kaggle Store_Using LLMs to Improve Your Coding,Prophet_plain,7.033782964267942,365
+Canada_Kaggle Store_Using LLMs to Train More LLMs,Prophet_tuned,5.181461412046396,365
+Canada_Kaggle Store_Using LLMs to Win Friends and Influence People,Prophet_plain,5.555316398563563,365
+Canada_Kaggle Store_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,6.658387057219568,365
+Canada_Kaggle Store_Using LLMs to Write Better,Prophet_tuned,6.908143598893495,365
+Estonia_Kagglazon_Using LLMs to Improve Your Coding,Prophet_tuned,13.904635790803358,365
+Estonia_Kagglazon_Using LLMs to Train More LLMs,Prophet_tuned,10.266876586099597,365
+Estonia_Kagglazon_Using LLMs to Win Friends and Influence People,Prophet_tuned,9.970144494763233,365
+Estonia_Kagglazon_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,13.584263619802867,365
+Estonia_Kagglazon_Using LLMs to Write Better,Prophet_tuned,14.604491337594732,365
+Estonia_Kaggle Learn_Using LLMs to Improve Your Coding,Prophet_tuned,9.532544847208896,365
+Estonia_Kaggle Learn_Using LLMs to Train More LLMs,Prophet_tuned,10.355939974286658,365
+Estonia_Kaggle Learn_Using LLMs to Win Friends and Influence People,Prophet_tuned,10.942574882815943,365
+Estonia_Kaggle Learn_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,14.135337754752253,365
+Estonia_Kaggle Learn_Using LLMs to Write Better,Prophet_plain,14.868926683481076,365
+Estonia_Kaggle Store_Using LLMs to Improve Your Coding,Prophet_tuned,14.283794401298053,365
+Estonia_Kaggle Store_Using LLMs to Train More LLMs,Prophet_tuned,9.877562320991945,365
+Estonia_Kaggle Store_Using LLMs to Win Friends and Influence People,Prophet_tuned,11.12188296457061,365
+Estonia_Kaggle Store_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,13.791630111927242,365
+Estonia_Kaggle Store_Using LLMs to Write Better,Prophet_plain,14.842653059900792,365
+Japan_Kagglazon_Using LLMs to Improve Your Coding,Prophet_tuned,4.99353605938099,365
+Japan_Kagglazon_Using LLMs to Train More LLMs,AutoETS,7.24021815536609,365
+Japan_Kagglazon_Using LLMs to Win Friends and Influence People,AutoETS,7.158744848774462,365
+Japan_Kagglazon_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,4.97587882513066,365
+Japan_Kagglazon_Using LLMs to Write Better,Prophet_tuned,5.23897436709125,365
+Japan_Kaggle Learn_Using LLMs to Improve Your Coding,Prophet_plain,4.838220170096856,365
+Japan_Kaggle Learn_Using LLMs to Train More LLMs,Prophet_tuned,5.347391761399899,365
+Japan_Kaggle Learn_Using LLMs to Win Friends and Influence People,Prophet_tuned,5.116261923921651,365
+Japan_Kaggle Learn_Using LLMs to Win More Kaggle Competitions,Prophet_plain,4.7601815392221685,365
+Japan_Kaggle Learn_Using LLMs to Write Better,Prophet_plain,5.2684993239149165,365
+Japan_Kaggle Store_Using LLMs to Improve Your Coding,Prophet_tuned,4.976405174556101,365
+Japan_Kaggle Store_Using LLMs to Train More LLMs,Prophet_tuned,5.9146184680965685,365
+Japan_Kaggle Store_Using LLMs to Win Friends and Influence People,Prophet_plain,5.734590106356663,365
+Japan_Kaggle Store_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,5.491940510278556,365
+Japan_Kaggle Store_Using LLMs to Write Better,Prophet_plain,5.291945893672694,365
+Spain_Kagglazon_Using LLMs to Improve Your Coding,Prophet_tuned,5.192860584741116,365
+Spain_Kagglazon_Using LLMs to Train More LLMs,Prophet_tuned,6.274156950472541,365
+Spain_Kagglazon_Using LLMs to Win Friends and Influence People,Prophet_tuned,6.246708901845511,365
+Spain_Kagglazon_Using LLMs to Win More Kaggle Competitions,Prophet_plain,5.249670673432323,365
+Spain_Kagglazon_Using LLMs to Write Better,Prophet_plain,5.173655743942061,365
+Spain_Kaggle Learn_Using LLMs to Improve Your Coding,Prophet_tuned,5.254187378022049,365
+Spain_Kaggle Learn_Using LLMs to Train More LLMs,Prophet_plain,6.780552024118506,365
+Spain_Kaggle Learn_Using LLMs to Win Friends and Influence People,Prophet_plain,6.370708652989887,365
+Spain_Kaggle Learn_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,4.968110135857639,365
+Spain_Kaggle Learn_Using LLMs to Write Better,Prophet_tuned,5.538958592268798,365
+Spain_Kaggle Store_Using LLMs to Improve Your Coding,Prophet_tuned,4.928933648744114,365
+Spain_Kaggle Store_Using LLMs to Train More LLMs,Prophet_tuned,6.976602265667002,365
+Spain_Kaggle Store_Using LLMs to Win Friends and Influence People,Prophet_tuned,5.655086020378595,365
+Spain_Kaggle Store_Using LLMs to Win More Kaggle Competitions,Prophet_tuned,5.1487108169962825,365
+Spain_Kaggle Store_Using LLMs to Write Better,Prophet_tuned,5.329911482107484,365
