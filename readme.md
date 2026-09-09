@@ -1,5 +1,9 @@
 # 多模型融合时间序列预测系统
 
+## 云部署访问
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Streamlit-FF4B4B)](https://time-series-forecast-dw8kazyz3pveab3znxfd4x.streamlit.app/)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://time-series-forecast-dw8kazyz3pveab3znxfd4x.streamlit.app/)
+
 &gt; 基于 StatsForecast 与 Prophet 的多模型集成时间序列预测流水线，支持 per-SKU 自动选优、测试集评估与上线预测，配备 Streamlit 交互式可视化看板。
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
@@ -240,6 +244,4 @@ Facebook 开源的时间序列预测工具，适用于含节假日效应和多�
 
 本项目基于 MIT 许可证开源。详见 [LICENSE](LICENSE) 文件。
 
-## 云部署访问
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Streamlit-FF4B4B)](https://time-series-forecast-dw8kazyz3pveab3znxfd4x.streamlit.app/)
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://time-series-forecast-dw8kazyz3pveab3znxfd4x.streamlit.app/)
+
