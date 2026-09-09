@@ -1,5 +1,5 @@
 """
-streamlit_app.py — 时间序列预测结果交互看板（重构版）
+streamlit_app.py — 时间序列预测结果交互看板
 """
 import streamlit as st
 import pandas as pd
