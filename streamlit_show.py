@@ -1,5 +1,5 @@
 """
-streamlit_app.py — 时间序列预测结果交互看板
+streamlit_app.py — 时间序列预测结果交互看板（重构版）
 """
 import streamlit as st
 import pandas as pd
@@ -8,17 +8,35 @@ import plotly.graph_objects as go
 import plotly.express as px
 from pathlib import Path
 
-# ========== 页面配置 ==========
+# ============================================================
+# 页面配置
+# ============================================================
 st.set_page_config(
     page_title="时间序列预测看板",
     page_icon="🔮",
     layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# 自定义 CSS — 提升整体视觉质感
+st.markdown(
+    """
+    <style>
+    .block-container { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+    h1, h2, h3 { font-weight: 600; }
+    .stSelectbox label { font-weight: 500; }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 st.title("🔮 时间序列预测结果看板")
-st.markdown("---")
+st.caption("多层级 Bottom-Up 汇总 · 全球视角 · 一键探索")
+st.divider()
 
-# ========== 数据路径配置 ==========
+# ============================================================
+# 数据路径配置
+# ============================================================
 DATA_DIR = Path("data")
 OUTPUT_DIR = Path("output")
 
@@ -27,7 +45,9 @@ TEST_FILE = DATA_DIR / "test.csv"
 RETRAIN_FORECAST_FILE = OUTPUT_DIR / "retrain_final_forecast.csv"
 
 
-# ========== 国家坐标字典 ==========
+# ============================================================
+# 国家坐标字典
+# ============================================================
 COUNTRY_COORDS = {
     "Canada": (56.13, -106.35),
     "United States": (37.09, -95.71),
@@ -71,7 +91,9 @@ COUNTRY_COORDS = {
 }
 
 
-# ========== 数据加载函数 ==========
+# ============================================================
+# 数据加载
+# ============================================================
 @st.cache_data
 def load_all_data():
     """加载并合并训练集、测试集和预测结果"""
@@ -89,120 +111,104 @@ def load_all_data():
     test_df["data_type"] = "测试集"
     forecast_df["data_type"] = "预测"
 
-    # 训练集和测试集添加预测相关列（空值）
-    train_df["best_forecast"] = np.nan
-    train_df["best_forecast-lo-95"] = np.nan
-    train_df["best_forecast-hi-95"] = np.nan
-    train_df["best_model"] = ""
+    # 对齐列结构
+    for df in [train_df, test_df]:
+        df["best_forecast"] = np.nan
+        df["best_forecast-lo-95"] = np.nan
+        df["best_forecast-hi-95"] = np.nan
+        df["best_model"] = ""
 
-    test_df["best_forecast"] = np.nan
-    test_df["best_forecast-lo-95"] = np.nan
-    test_df["best_forecast-hi-95"] = np.nan
-    test_df["best_model"] = ""
-
-    # 预测集添加 y 列（空值）
     forecast_df["y"] = np.nan
     forecast_df["country"] = ""
     forecast_df["store"] = ""
     forecast_df["product"] = ""
 
-    # 从 train/test 中获取 country, store, product 映射
+    # 从训练/测试集提取元信息
     meta_df = pd.concat([train_df, test_df], ignore_index=True)
     meta_map = meta_df[["unique_id", "country", "store", "product"]].drop_duplicates(
         subset="unique_id"
     )
     meta_dict = {
-        row["unique_id"]: {
-            "country": row["country"],
-            "store": row["store"],
-            "product": row["product"],
-        }
+        row["unique_id"]: {"country": row["country"], "store": row["store"], "product": row["product"]}
         for _, row in meta_map.iterrows()
     }
 
-    # 填充预测集的元信息
-    for uid in meta_dict:
+    for uid, meta in meta_dict.items():
         mask = forecast_df["unique_id"] == uid
-        forecast_df.loc[mask, "country"] = meta_dict[uid]["country"]
-        forecast_df.loc[mask, "store"] = meta_dict[uid]["store"]
-        forecast_df.loc[mask, "product"] = meta_dict[uid]["product"]
+        forecast_df.loc[mask, "country"] = meta["country"]
+        forecast_df.loc[mask, "store"] = meta["store"]
+        forecast_df.loc[mask, "product"] = meta["product"]
 
-    # 统一列顺序并合并
+    # 合并
     common_cols = [
         "ds", "unique_id", "country", "store", "product",
         "y", "best_forecast", "best_forecast-lo-95", "best_forecast-hi-95",
         "best_model", "data_type",
     ]
-    train_aligned = train_df[common_cols].copy()
-    test_aligned = test_df[common_cols].copy()
-    forecast_aligned = forecast_df[common_cols].copy()
+    full_df = pd.concat(
+        [train_df[common_cols], test_df[common_cols], forecast_df[common_cols]],
+        ignore_index=True,
+    ).sort_values(["unique_id", "ds"]).reset_index(drop=True)
 
-    full_df = pd.concat([train_aligned, test_aligned, forecast_aligned], ignore_index=True)
-    full_df = full_df.sort_values(["unique_id", "ds"]).reset_index(drop=True)
-
-    return full_df, train_df, test_df, forecast_df, meta_dict
+    return full_df, meta_dict
 
 
-# ========== 加载数据 ==========
-with st.spinner("正在加载数据..."):
-    full_df, train_df, test_df, forecast_df, meta_dict = load_all_data()
+@st.cache_data
+def get_country_sku_data(full_df, countries):
+    """构建国家地图数据"""
+    country_sku_counts = (
+        full_df[full_df["data_type"] == "训练集"]
+        .groupby("country")["unique_id"]
+        .nunique()
+        .to_dict()
+    )
+    rows = []
+    for c in countries:
+        if c in COUNTRY_COORDS:
+            lat, lon = COUNTRY_COORDS[c]
+            rows.append({"country": c, "sku_count": country_sku_counts.get(c, 0), "lat": lat, "lon": lon})
+    return pd.DataFrame(rows)
 
-# 获取国家列表
+
+# ============================================================
+# 加载数据
+# ============================================================
+with st.spinner("正在加载数据，请稍候..."):
+    full_df, meta_dict = load_all_data()
+
 countries = sorted(full_df["country"].dropna().unique().tolist())
-country_sku_counts = (
-    full_df[full_df["data_type"] == "训练集"]
-    .groupby("country")["unique_id"]
-    .nunique()
-    .to_dict()
-)
-
-# 为每个国家准备地图数据
-country_sku_df = pd.DataFrame(
-    [
-        {
-            "country": c,
-            "sku_count": country_sku_counts.get(c, 0),
-        }
-        for c in countries
-        if c in COUNTRY_COORDS
-    ]
-)
-
-# 添加经纬度
-country_sku_df["lat"] = country_sku_df["country"].apply(
-    lambda c: COUNTRY_COORDS.get(c, (0, 0))[0]
-)
-country_sku_df["lon"] = country_sku_df["country"].apply(
-    lambda c: COUNTRY_COORDS.get(c, (0, 0))[1]
-)
-
-# ========== 侧边栏 ==========
-st.sidebar.header("🌍 选择国家")
-
-selected_country = st.sidebar.selectbox(
-    "选择一个国家:",
-    [""] + countries,
-    index=0,
-    key="sidebar_country",
-)
-
-if selected_country:
-    st.session_state.selected_country = selected_country
-else:
-    st.session_state.selected_country = None
+country_sku_df = get_country_sku_data(full_df, countries)
 
 
-# ===== 地图 =====
-st.subheader("🌎 国家分布")
+# ============================================================
+# 侧边栏 — 国家选择
+# ============================================================
+with st.sidebar:
+    st.header("🌍 选择国家")
+    selected_country = st.selectbox(
+        "选择一个国家以查看详情：",
+        [""] + countries,
+        index=0,
+        key="sidebar_country",
+        format_func=lambda x: "— 请选择 —" if x == "" else x,
+    )
+    st.session_state.selected_country = selected_country if selected_country else None
+
+    st.divider()
+    st.caption("提示：选择国家后，下方将展示该国的多层级 Bottom-Up 汇总图。")
+
+
+# ============================================================
+# 全球地图
+# ============================================================
+st.subheader("🌎 全球国家分布")
 
 hover_texts = country_sku_df.apply(
     lambda r: f"<b>{r['country']}</b><br>SKU 数量: {r['sku_count']}",
     axis=1,
 )
 
-fig_map = go.Figure()
-
-fig_map.add_trace(
+fig_map = go.Figure(
     go.Scattergeo(
         lon=country_sku_df["lon"],
         lat=country_sku_df["lat"],
@@ -214,12 +220,12 @@ fig_map.add_trace(
             color=country_sku_df["sku_count"],
             colorscale="Viridis",
             showscale=True,
-            colorbar=dict(title="SKU 数量"),
+            colorbar=dict(title="SKU 数量", len=0.5),
             line=dict(width=1, color="white"),
         ),
         text=country_sku_df["country"],
         textposition="top center",
-        textfont=dict(size=10, color="black"),
+        textfont=dict(size=10, color="#2c3e50"),
     )
 )
 
@@ -233,25 +239,24 @@ fig_map.update_layout(
         projection_type="natural earth",
         coastlinecolor="rgb(204, 204, 204)",
     ),
-    height=520,
+    height=480,
     margin=dict(l=0, r=0, t=0, b=0),
+    hoverlabel=dict(bgcolor="white", font_size=12),
 )
 
 st.plotly_chart(fig_map, use_container_width=True)
+st.divider()
 
-st.markdown("---")
 
 # ============================================================
-# 多层级 Bottom-Up 汇总（替换了原来的商店与产品详情）
+# 多层级 Bottom-Up 汇总
 # ============================================================
 st.subheader("📊 多层级 Bottom-Up 汇总")
 
-if selected_country:
-    country_data = full_df[full_df["country"] == selected_country].copy()
-else:
-    country_data = full_df.copy()
+# 筛选该国数据
+country_data = full_df.copy() if not selected_country else full_df[full_df["country"] == selected_country].copy()
 
-# 层级组合选择器
+# 层级选择
 level_options = {
     "国家总览": "country",
     "国家 × 商店": "country_store",
@@ -259,37 +264,34 @@ level_options = {
     "国家 × 商店 × 产品": "country_store_product",
 }
 selected_level = st.selectbox(
-    "选择汇总层级组合:",
+    "选择汇总层级组合：",
     list(level_options.keys()),
     index=0,
     key="level_selector",
 )
 
-# 根据选择的层级做汇总
+# 构建子集
 subset = country_data.copy()
 level_label = selected_level
 
-if selected_level == "国家总览":
-    pass
-
-elif selected_level == "国家 × 商店":
+if selected_level == "国家 × 商店":
     stores = sorted(country_data["store"].dropna().unique())
-    sel = st.selectbox("选择商店:", stores, index=0, key="store_lv")
+    sel = st.selectbox("选择商店：", stores, index=0, key="store_lv")
     subset = country_data[country_data["store"] == sel]
     level_label = f"{selected_country} × {sel}"
 
 elif selected_level == "国家 × 产品":
     products = sorted(country_data["product"].dropna().unique())
-    sel = st.selectbox("选择产品:", products, index=0, key="prod_lv")
+    sel = st.selectbox("选择产品：", products, index=0, key="prod_lv")
     subset = country_data[country_data["product"] == sel]
     level_label = f"{selected_country} × {sel}"
 
-else:  # 国家 × 商店 × 产品
+elif selected_level == "国家 × 商店 × 产品":
     stores = sorted(country_data["store"].dropna().unique())
-    sel_store = st.selectbox("选择商店:", stores, index=0, key="store_lv2")
+    sel_store = st.selectbox("选择商店：", stores, index=0, key="store_lv2")
     sub_s = country_data[country_data["store"] == sel_store]
     products = sorted(sub_s["product"].dropna().unique())
-    sel_prod = st.selectbox("选择产品:", products, index=0, key="prod_lv2")
+    sel_prod = st.selectbox("选择产品：", products, index=0, key="prod_lv2")
     subset = sub_s[sub_s["product"] == sel_prod]
     level_label = f"{selected_country} × {sel_store} × {sel_prod}"
 
@@ -301,90 +303,93 @@ agg_train = (
 agg_test = (
     subset[subset["data_type"] == "测试集"]
     .groupby("ds")["y"].sum().reset_index()
-) if len(subset[subset["data_type"] == "测试集"]) > 0 else pd.DataFrame()
+)
 agg_forecast = (
     subset[subset["data_type"] == "预测"]
     .groupby("ds")[["best_forecast", "best_forecast-lo-95", "best_forecast-hi-95"]]
     .sum().reset_index()
 )
 
-# 绘制汇总图
+# 绘图
 fig_agg = go.Figure()
 
-if len(agg_train) > 0:
+if not agg_train.empty:
     fig_agg.add_trace(go.Scatter(
         x=agg_train["ds"], y=agg_train["y"],
         mode="lines", name="训练集",
-        line=dict(color="royalblue", width=1.5), opacity=0.8,
+        line=dict(color="#3b82f6", width=1.5), opacity=0.7,
     ))
 
-if len(agg_test) > 0:
+if not agg_test.empty:
     fig_agg.add_trace(go.Scatter(
         x=agg_test["ds"], y=agg_test["y"],
         mode="lines+markers", name="测试集真实值",
-        line=dict(color="orange", width=1.5), marker=dict(size=3),
+        line=dict(color="#f59e0b", width=1.5), marker=dict(size=4, symbol="circle"),
     ))
 
-if len(agg_forecast) > 0:
-    # 国家×商店×产品层级显示置信区间
+if not agg_forecast.empty:
+    # 置信区间（仅最细粒度层级展示）
     if selected_level == "国家 × 商店 × 产品":
         lo = agg_forecast["best_forecast-lo-95"]
         hi = agg_forecast["best_forecast-hi-95"]
         fig_agg.add_trace(go.Scatter(
-            x=agg_forecast["ds"], y=hi,
-            mode="lines", line=dict(width=0), showlegend=False,
-        ))
-        fig_agg.add_trace(go.Scatter(
-            x=agg_forecast["ds"], y=lo,
-            mode="lines", line=dict(width=0),
-            fillcolor="rgba(0,200,100,0.2)", fill="tonexty",
+            x=pd.concat([agg_forecast["ds"], agg_forecast["ds"][::-1]]),
+            y=pd.concat([hi, lo[::-1]]),
+            fill="toself",
+            fillcolor="rgba(34,197,94,0.15)",
+            line=dict(width=0),
             name="95% 置信区间",
         ))
 
     fig_agg.add_trace(go.Scatter(
         x=agg_forecast["ds"], y=agg_forecast["best_forecast"],
         mode="lines", name="预测值",
-        line=dict(color="green", width=2.5),
+        line=dict(color="#22c55e", width=2.5),
     ))
 
 # 分界线
-if len(agg_train) > 0:
+if not agg_train.empty:
     train_end = agg_train["ds"].max()
-    fig_agg.add_vline(x=train_end, line_dash="dash", line_color="gray", opacity=0.5)
+    fig_agg.add_vline(x=train_end, line_dash="dash", line_color="gray", opacity=0.4)
     y_top = max(
-        agg_forecast["best_forecast"].max() if len(agg_forecast) > 0 else 0,
-        agg_train["y"].max() if len(agg_train) > 0 else 0,
+        agg_forecast["best_forecast"].max() if not agg_forecast.empty else 0,
+        agg_train["y"].max() if not agg_train.empty else 0,
     )
     fig_agg.add_annotation(
         x=train_end, y=y_top * 0.95,
-        text="训练/预测分界", showarrow=False,
-        font=dict(color="gray", size=10),
+        text="训练 / 预测分界", showarrow=False,
+        font=dict(color="gray", size=11),
+        xshift=8,
     )
 
 fig_agg.update_layout(
-    title=f"{level_label} — 日销量汇总",
+    title=f"**{level_label}** — 日销量汇总",
     xaxis_title="日期",
     yaxis_title="总销量",
     hovermode="x unified",
     height=450,
     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    margin=dict(t=60, b=30),
 )
 
 st.plotly_chart(fig_agg, use_container_width=True)
 
 
-# ===== 未选国家时的默认展示 =====
+# ============================================================
+# 未选择国家时的默认概览
+# ============================================================
 if not selected_country:
-    st.info("👈 在左侧边栏选择一个国家，查看多层级 Bottom-Up 汇总")
+    st.info("👈 在左侧边栏选择一个国家，即可查看该国的多层级 Bottom-Up 汇总分析。")
 
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2, gap="medium")
 
     with col1:
         type_counts = full_df["data_type"].value_counts()
         fig_pie = px.pie(
             values=type_counts.values, names=type_counts.index,
-            title="数据量分布 (行数)",
+            title="数据量分布（行数）",
             color_discrete_sequence=px.colors.qualitative.Set2,
+            hole=0.4,
         )
         st.plotly_chart(fig_pie, use_container_width=True)
 
@@ -398,9 +403,15 @@ if not selected_country:
         )
         country_bar.columns = ["国家", "SKU 数量"]
         fig_bar = px.bar(
-            country_bar.tail(20), x="SKU 数量", y="国家",
-            orientation="h", title="Top 20 国家 SKU 数量",
-            color="SKU 数量", color_continuous_scale="Viridis",
+            country_bar.tail(20),
+            x="SKU 数量", y="国家",
+            orientation="h",
+            title="Top 20 国家 SKU 数量",
+            color="SKU 数量",
+            color_continuous_scale="Viridis",
         )
-        fig_bar.update_layout(yaxis={"categoryorder": "total ascending"})
+        fig_bar.update_layout(
+            yaxis={"categoryorder": "total ascending"},
+            margin=dict(l=10, r=10, t=40, b=10),
+        )
         st.plotly_chart(fig_bar, use_container_width=True)
