@@ -79,14 +79,14 @@ pip install -r requirements.txt
 依赖清单（`requirements.txt`）：
 
 ```text
-pandas&gt;=1.5.0
-numpy&gt;=1.24.0
-statsforecast&gt;=1.7.0
-prophet&gt;=1.1.5
-utilsforecast&gt;=0.2.0
-streamlit&gt;=1.28.0
-plotly&gt;=5.15.0
-tqdm&gt;=4.65.0
+pandas>=1.5.0
+numpy>=1.24.0
+statsforecast>=1.7.0
+prophet>=1.1.5
+utilsforecast>=0.2.0
+streamlit>=1.28.0
+plotly>=5.15.0
+tqdm>=4.65.0
 ```
 
 ### 数据准备
